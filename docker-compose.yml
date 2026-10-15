@@ -1,0 +1,27 @@
+name: marginlens
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: marginlens_postgres
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres_data:
